@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:news_app/api/spaceflight.dart';
 import 'package:news_app/cards.dart';
 
 void main() {
@@ -27,10 +28,28 @@ class MainApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({
     super.key,
   });
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late List<Result> _news = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getNews();
+  }
+
+  void _getNews() async {
+    _news = (await NewsApi.getNews())!;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +73,11 @@ class HomePage extends StatelessWidget {
           ],
         ),
         body: ListView(
-          children: const [NewsCard()],
-        ));
+            children: _news
+                .map((news) => NewsCard(
+                    title: news.title,
+                    subtitle: news.summary,
+                    image: news.imageUrl))
+                .toList()));
   }
 }
