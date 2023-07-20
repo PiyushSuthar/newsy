@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/services.dart';
 import 'package:news_app/api/spaceflight.dart';
 import 'package:news_app/cards.dart';
+import 'package:news_app/views/saved.dart';
 
 void main() {
   runApp(const MainApp());
@@ -63,64 +65,71 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedIndex = index;
       _pageController.animateToPage(index,
-          duration: const Duration(milliseconds: 300), curve: Curves.ease);
+          duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        // change brightnes of the background color
-        appBar: AppBar(
-          title: const Text(
-            "Newsy",
-            style: TextStyle(fontWeight: FontWeight.w600),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+          systemNavigationBarColor: ElevationOverlay.applySurfaceTint(
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.surfaceTint,
+              3)),
+      child: Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.background,
+          // change brightnes of the background color
+          appBar: AppBar(
+            title: const Text(
+              "Newsy",
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: () {
+                  showModalBottomSheet<void>(
+                    context: context,
+                    showDragHandle: true,
+                    builder: (context) {
+                      return const SizedBox(
+                        height: 300,
+                        child: Center(
+                          child: Text("Settings"),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
           ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                showModalBottomSheet<void>(
-                  context: context,
-                  showDragHandle: true,
-                  builder: (context) {
-                    return const SizedBox(
-                      height: 300,
-                      child: Center(
-                        child: Text("Settings"),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ],
-        ),
-        bottomNavigationBar: NavigationBar(
-          onDestinationSelected: (value) {
-            _onItemTapped(value);
-          },
-          selectedIndex: _selectedIndex,
-          destinations: const <NavigationDestination>[
-            NavigationDestination(
-              selectedIcon: Icon(Icons.newspaper),
-              icon: Icon(Icons.newspaper_outlined),
-              label: 'News',
-            ),
-            NavigationDestination(
-              selectedIcon: Icon(Icons.bookmark),
-              icon: Icon(Icons.bookmark_border),
-              label: 'Saved',
-            ),
-          ],
-        ),
-        body: homeView(context));
+          bottomNavigationBar: NavigationBar(
+            onDestinationSelected: (value) {
+              _onItemTapped(value);
+            },
+            selectedIndex: _selectedIndex,
+            destinations: const <NavigationDestination>[
+              NavigationDestination(
+                selectedIcon: Icon(Icons.newspaper),
+                icon: Icon(Icons.newspaper_outlined),
+                label: 'News',
+              ),
+              NavigationDestination(
+                selectedIcon: Icon(Icons.bookmark),
+                icon: Icon(Icons.bookmark_border),
+                label: 'Saved',
+              ),
+            ],
+          ),
+          body: homeView(context)),
+    );
   }
 
   Widget homeView(BuildContext context) {
@@ -132,11 +141,10 @@ class _HomePageState extends State<HomePage> {
           : ListView(
               children: _news
                   .map((news) => NewsCard(
-                      title: news.title.toString(),
-                      subtitle: news.summary.toString(),
-                      image: news.imageUrl))
+                        news: news,
+                      ))
                   .toList()),
-      savedViews(context)
+      SavedView(context: context)
     ];
     return PageView(
         controller: _pageController,
@@ -144,28 +152,6 @@ class _HomePageState extends State<HomePage> {
         onPageChanged: (index) {
           setState(() => _selectedIndex = index);
         });
-  }
-
-  Widget savedViews(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.bookmark_add_outlined,
-            size: 50,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-          const Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Text(
-              "Click On Bookmark Icon To Save News.",
-              style: TextStyle(fontSize: 15),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 
