@@ -39,6 +39,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late List<Result> _news = [];
+  int _selectedIndex = 0;
+  final PageController _pageController = PageController();
 
   @override
   void initState() {
@@ -46,9 +48,23 @@ class _HomePageState extends State<HomePage> {
     _getNews();
   }
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   void _getNews() async {
     _news = (await NewsApi.getNews());
     setState(() {});
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      _pageController.animateToPage(index,
+          duration: const Duration(milliseconds: 300), curve: Curves.ease);
+    });
   }
 
   @override
@@ -87,6 +103,10 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         bottomNavigationBar: NavigationBar(
+          onDestinationSelected: (value) {
+            _onItemTapped(value);
+          },
+          selectedIndex: _selectedIndex,
           destinations: const <NavigationDestination>[
             NavigationDestination(
               selectedIcon: Icon(Icons.newspaper),
@@ -100,17 +120,52 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        body: _news.isEmpty
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : ListView(
-                children: _news
-                    .map((news) => NewsCard(
-                        title: news.title.toString(),
-                        subtitle: news.summary.toString(),
-                        image: news.imageUrl))
-                    .toList()));
+        body: homeView(context));
+  }
+
+  Widget homeView(BuildContext context) {
+    List<Widget> widgetOptions = <Widget>[
+      _news.isEmpty
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : ListView(
+              children: _news
+                  .map((news) => NewsCard(
+                      title: news.title.toString(),
+                      subtitle: news.summary.toString(),
+                      image: news.imageUrl))
+                  .toList()),
+      savedViews(context)
+    ];
+    return PageView(
+        controller: _pageController,
+        children: widgetOptions,
+        onPageChanged: (index) {
+          setState(() => _selectedIndex = index);
+        });
+  }
+
+  Widget savedViews(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.bookmark_add_outlined,
+            size: 50,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+          const Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Text(
+              "Click On Bookmark Icon To Save News.",
+              style: TextStyle(fontSize: 15),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
