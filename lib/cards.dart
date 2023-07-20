@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert' show utf8;
 
 class NewsCard extends StatelessWidget {
   const NewsCard({
@@ -17,7 +18,8 @@ class NewsCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Card(
-        borderOnForeground: true,
+        shadowColor: Colors.black.withOpacity(0),
+        // borderOnForeground: true,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20.0))),
         child: Column(
@@ -33,14 +35,14 @@ class NewsCard extends StatelessWidget {
                   top: 15.0, bottom: 20.0, left: 10.0, right: 10.0),
               child: ListTile(
                 title: Text(
-                  title,
+                  utf8.decode(title.codeUnits),
                   style: const TextStyle(
                       fontWeight: FontWeight.w600, fontSize: 17.0),
                 ),
                 subtitle: Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
-                    subtitle,
+                    utf8.decode(subtitle.codeUnits),
                     style: const TextStyle(fontSize: 15.0),
                   ),
                 ),
