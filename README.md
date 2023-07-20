@@ -4,6 +4,7 @@ A new Flutter project.
 
 ## Todos
 
+- Implement Infinite scroll
 - Add more news sources
 - Implement search, settings page.
 - Implement Saved news page.
