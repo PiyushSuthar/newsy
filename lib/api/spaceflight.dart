@@ -28,8 +28,8 @@ import 'package:http/http.dart' as http;
 
 class NewsApi {
   static Future<List<Result>> getNews() async {
-    final response = await http.get(Uri.parse(
-        'https://api.spaceflightnewsapi.net/v4/articles?_limit=10&_start=0'));
+    final response = await http
+        .get(Uri.parse('https://api.spaceflightnewsapi.net/v4/articles'));
     if (response.statusCode == 200) {
       // final List<News> news = [];
       // final List<dynamic> json = response.body as List<News>;
